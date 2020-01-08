@@ -1,3 +1,5 @@
+const bcrypt = require('bcryptjs');
+
 const db = [];
 
 function all() {
@@ -8,10 +10,14 @@ function all() {
 }
 
 function create(name, joyVal) {
-    let givesJoy = false;
-    if (joyVal) {
-        givesJoy = true;
-    }
+    // if I wanted to store on/off instead of undefined
+    // let givesJoy = joyVal || 'off';
+
+    // i want to test if joyVal is truthy
+    // if it is, I want truth, else I want false
+    let givesJoy = joyVal ? true : false;
+
+    
     const newItem = {
         name,
         givesJoy
@@ -25,10 +31,36 @@ const stuff = {
 }
 
 const users = {
-    // allUsers,
+    create: createUser,
+    verify: login
     // signup,
     // login
 }
+
+const userDb = [];
+function createHash(password) {
+    const salt = bcrypt.genSaltSync(10);
+    return bcrypt.hashSync(password, salt);
+}
+
+function createUser(username, password) {
+    const hash = createHash(password);
+    const newUser = {
+        username,
+        hash
+    }
+    userDb.push(newUser);
+    console.log(userDb);
+}
+
+function login(username, password) {
+    const userObj = userDb.find(userObj => userObj.username == username);
+    return bcrypt.compareSync(password, userObj.hash)
+}
+
+
+
+
 
 module.exports = {
     stuff,

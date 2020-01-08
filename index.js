@@ -6,9 +6,9 @@ const logger = morgan('tiny');
 const helmet = require('helmet');
 const bodyParser = require('body-parser');
 const es6Renderer = require('express-es6-template-engine');
-const { stuff } = require('./models');
+const { stuff, users } = require('./models');
 
-// sets up parseForm ability
+// sets up parseForm middleware to capture user POST data
 const parseForm = bodyParser.urlencoded({
     extended: true
 });
@@ -51,6 +51,27 @@ app.post('/create', parseForm, (req, res) => {
 app.get('/create/success', (req, res) => {
     // setTimeout(500)
     res.redirect('/create');
+})
+
+app.get('/signup', (req, res) => {
+    res.render('user-auth');
+})
+
+app.post('/signup', parseForm, (req, res) => {
+    // console.log(req.body)
+    const {username, password} = req.body;
+    users.create(username, password);
+    res.redirect('/login');
+})
+
+app.get('/login', (req, res) => {
+    res.render('user-auth');
+})
+
+app.post('/login', parseForm, (req, res) => {
+    const { username, password } = req.body;
+    const didLogin = users.verify(username, password);
+    res.send(didLogin);
 })
 
 // causes server to run
